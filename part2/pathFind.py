@@ -178,16 +178,16 @@ def distance_between_goal_pair(map, goal_position_list):
 
 
 def computeHeuristicHelper(node, goal_list, goal_distance_dictionary):
-    unflaggedArr = np.array([])
+    not_eaten_keys = []
     for pos in goal_list:
         if node.dot_condition[pos] == 0:
-            unflaggedArr = np.append(unflaggedArr, pos)
+            not_eaten_keys.append(pos)
 
     selected_dictionary = {}
-    for i in range(len(unflaggedArr)):
-        x1, y1 = unflaggedArr[i]
-        for j in range(i+1, len(unflaggedArr)):
-            x2,y2 = unflaggedArr[j]
+    for i in range(len(not_eaten_keys)):
+        x1, y1 = not_eaten_keys[i]
+        for j in range(i+1, len(not_eaten_keys)):
+            x2,y2 = not_eaten_keys[j]
             if (x1+y1 < x2+y2):
                 val = goal_distance_dictionary[((x1,y1),(x2,y2))]
                 #selected_dictionary.update({((x1,y1),(x2,y2)), val})
@@ -208,11 +208,11 @@ def computeHeuristicHelper(node, goal_list, goal_distance_dictionary):
 
 def findBiggestKeyPair(dictionary):
     keyArr = []
-    valArr = np.array([])
+    valArr = []
     for key, value in dictionary.iteritems():
         keyArr.append(key)
-        valArr = np.append(valArr, value)
-    max_idx = np.argmax(valArr)
+        valArr.append(value)
+    max_idx = valArr.index(max(valArr))
     pos1, pos2 = keyArr[max_idx]
     goal_dist = valArr[max_idx]
     return (pos1, pos2, goal_dist)
@@ -220,7 +220,22 @@ def findBiggestKeyPair(dictionary):
 
 def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #return a heuristic for
     #find two goals which preserve the largest distance:
-    pos1, pos2, goal_dist = findBiggestKeyPair(goal_distance_dictionary)
+
+    goal_number = len(goal_list)
+    sum_of_conditions = sum(node.dot_condition.values())
+    if(sum_of_conditions == goal_number-1):
+        for key in node.dot_condition:
+            if node.dot_condition[key] == 0:
+                return calculate_maze_distance(node.position, key, maze_map)
+
+    if(sum_of_conditions == goal_number):
+        return 0
+
+
+    to_pass_in_dict = computeHeuristicHelper(node, goal_list, goal_distance_dictionary)
+
+
+    pos1, pos2, goal_dist = findBiggestKeyPair(to_pass_in_dict)
     #find heuristic for node1 & node2:
     h1 = calculate_maze_distance(node.position, pos1, maze_map)
     h2 = calculate_maze_distance(node.position, pos2, maze_map)
@@ -235,8 +250,10 @@ def search(maze_name):
     dot_condition = initialize_dot_condition(goal_position_list)
     start_node = nodept2.Node_pt2(0,0,[start_position],start_position)
     dot_number = len(goal_position_list)
+    start_node.dot_condition = dot_condition
 
     precomputed_distance = distance_between_goal_pair(map, goal_position_list)
+
     start_node.heuristic_cost = computeHeuristic(start_node, map, goal_position_list, precomputed_distance)
 
     start_node.cost = start_node.heuristic_cost + 0
@@ -247,11 +264,14 @@ def search(maze_name):
     frontier.put(start_node)
 
     explored_states = []
+    counter = 0
     while(not contain_goal(frontier.queue, dot_number)):
+        counter += 1
         to_expand_node = frontier.get()
         explored_states.append(to_expand_node.explored_identifier)
         search_expand(to_expand_node, map, frontier, explored_states, goal_position_list, precomputed_distance)
 
+    print counter
     goal_condition = dot_number * [1]
     for frontier_node in frontier.queue:
         if(frontier_node.dot_condition.values() == goal_condition):

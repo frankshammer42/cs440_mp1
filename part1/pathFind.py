@@ -153,12 +153,15 @@ def informed_search(maze_name, which_method):
     frontier = Queue.PriorityQueue()
     frontier.put(start_node)
     explored_positions = []
+    counter = 0
     while(not contain_goal(frontier.queue, goal_position)):
         to_expand_node = frontier.get()
         explored_positions.append(to_expand_node.position)
         informed_expand(to_expand_node, map, frontier, explored_positions, goal_position, which_method)
+        counter += 1
 
 
+    print counter
     for frontier_node in frontier.queue:
         if(frontier_node.position == goal_position):
             print frontier_node
@@ -168,7 +171,7 @@ def informed_search(maze_name, which_method):
 
 
 
-# informed_search("./big_maze.txt", -1)
+informed_search("./big_maze.txt", -1)
 # uninformed_search("./big_maze.txt",-1)
 
 
