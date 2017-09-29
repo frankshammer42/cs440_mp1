@@ -126,7 +126,7 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
     for position in legal_positions:
         #Part 1 of repeated states detection
         #Since our heurstic is consistent we can still use repeated states detection
-        if list(position)+explored_identifier_suffix not in explored_states:
+        if tuple(list(position)+explored_identifier_suffix) not in explored_states:
 
             same_position_node_exists = 0
 
@@ -263,12 +263,13 @@ def search(maze_name):
     frontier = Queue.PriorityQueue()
     frontier.put(start_node)
 
-    explored_states = []
+    explored_states = set()
     counter = 0
     while(not contain_goal(frontier.queue, dot_number)):
         counter += 1
         to_expand_node = frontier.get()
-        explored_states.append(to_expand_node.explored_identifier)
+        tuple_id = tuple(to_expand_node.explored_identifier)
+        explored_states.add(tuple_id)
         search_expand(to_expand_node, map, frontier, explored_states, goal_position_list, precomputed_distance)
 
     print counter
@@ -281,7 +282,7 @@ def search(maze_name):
 
 
 
-search("tiny.txt")
+search("small.txt")
 
 
 

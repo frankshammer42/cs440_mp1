@@ -5,6 +5,11 @@ import copy
 import Queue
 
 
+"""
+I changed all the explored_position from list to set so that we can use hash
+"""
+
+
 def contain_goal(frontier, goal_position):
     for frontier_node in frontier:
         if(frontier_node.position == goal_position):
@@ -122,7 +127,7 @@ def uninformed_search(maze_name, which_method):
     goal_position = goal_position_list[0]
     start_node = node.Node(0,0,[start_position],start_position)
     frontier = [start_node]
-    explored_positions = []
+    explored_positions = set()
     while(not contain_goal(frontier, goal_position)):
         to_expand_node = frontier[which_method]
         if(which_method == 0):
@@ -130,7 +135,7 @@ def uninformed_search(maze_name, which_method):
         else:
             del frontier[len(frontier)-1]
 
-        explored_positions.append(to_expand_node.position)
+        explored_positions.add(to_expand_node.position)
         uninformed_expand(to_expand_node, map, frontier, explored_positions)
     for frontier_node in frontier:
         if(frontier_node.position == goal_position):
@@ -152,11 +157,11 @@ def informed_search(maze_name, which_method):
     start_node.cost = start_node.heuristic_cost + 0
     frontier = Queue.PriorityQueue()
     frontier.put(start_node)
-    explored_positions = []
+    explored_positions = set()
     counter = 0
     while(not contain_goal(frontier.queue, goal_position)):
         to_expand_node = frontier.get()
-        explored_positions.append(to_expand_node.position)
+        explored_positions.add(to_expand_node.position)
         informed_expand(to_expand_node, map, frontier, explored_positions, goal_position, which_method)
         counter += 1
 
@@ -172,6 +177,6 @@ def informed_search(maze_name, which_method):
 
 
 informed_search("./big_maze.txt", -1)
-# uninformed_search("./big_maze.txt",-1)
+# uninformed_search("./medium_maze.txt",-1)
 
 
