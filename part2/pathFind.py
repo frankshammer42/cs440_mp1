@@ -10,6 +10,8 @@ def contain_goal(frontier, dot_number):
     #Here the node in frontier belongs to nodept2
     goal_condition = dot_number * [1]
     for node in frontier:
+        print node.dot_condition
+        print "------------------------------------------------------"
         if node.dot_condition.values() == goal_condition:
             return True
     return False
@@ -51,10 +53,15 @@ def calculate_maze_expand(to_expand_node, map, frontier, explored_positions, goa
     available_position.append((to_expend_x, to_expend_y-1))
     available_position.append((to_expend_x, to_expend_y+1))
     legal_positions = legal_position(available_position, map)
+    # if(to_expand_node.position == (2,16)):
+        # print "yeah"
+    
+    
     for position in legal_positions:
         #Part 1 of repeated states detection
         #Since our heurstic is consistent we can still use repeated states detection
         if position not in explored_positions:
+
             same_position_node_exists = 0
             toadd_pathList = copy.deepcopy(to_expand_node.pathList)
             toadd_pathList.append(position)
@@ -63,19 +70,28 @@ def calculate_maze_expand(to_expand_node, map, frontier, explored_positions, goa
             #we use the A* search here using manhatan distance as heuristic
             node_to_add.heuristic_cost = manhattan_distance(goal_position, node_to_add.position)
             node_to_add.cost = node_to_add.step_cost + node_to_add.heuristic_cost
+            # if(to_expand_node.position == (2,16)):
+                # print frontier.queue
+                # print "--------------"
 
             #Check if we have a node that has the same position and has a smaller cost
             #if true, then remove the old node and attach the new node
+            counter = 0
             for frontier_node in frontier.queue:
                 if position == frontier_node.position:
                     same_position_node_exists = 1
                     if node_to_add.cost < frontier_node.cost:
-                        frontier.queue.remove(frontier_node)
+                        del frontier.queue[counter]
                         frontier.put(node_to_add)
+                counter += 1
 
             #we don't have the same position node
             if not same_position_node_exists:
                 frontier.put(node_to_add)
+
+
+
+    return
 
 
 
@@ -88,10 +104,12 @@ def calculate_maze_distance(start_position, goal_position, map):
     start_node.cost = start_node.heuristic_cost + 0
     frontier = Queue.PriorityQueue()
     frontier.put(start_node)
-    explored_positions = []
+    explored_positions = set() 
+    debug_it = 0
+    
     while(not calculate_maze_contain_goal(frontier.queue, goal_position)):
         to_expand_node = frontier.get()
-        explored_positions.append(to_expand_node.position)
+        explored_positions.add(to_expand_node.position)
         calculate_maze_expand(to_expand_node, map, frontier, explored_positions, goal_position)
 
     for frontier_node in frontier.queue:
@@ -148,12 +166,14 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
 
             #Check if we have a node that has the same position and has a smaller cost
             #if true, then remove the old node and attach the new node
+            counter = 0
             for frontier_node in frontier.queue:
                 if position == frontier_node.position:
                     same_position_node_exists = 1
                     if node_to_add.cost < frontier_node.cost:
                         frontier.queue.remove(frontier_node)
                         frontier.put(node_to_add)
+                counter += 1
 
             #we don't have the same position node
             if not same_position_node_exists:
@@ -164,7 +184,7 @@ def distance_between_goal_pair(map, goal_position_list):
     ret_list = {}
     position_list_len = len(goal_position_list)
     for i in range(position_list_len):
-        for j in range(i,position_list_len):
+        for j in range(i+1,position_list_len):
             dis = calculate_maze_distance(goal_position_list[i], goal_position_list[j], map)
             if goal_position_list[i][0]+goal_position_list[i][1]<goal_position_list[j][0]+goal_position_list[j][1]: ret_list[(goal_position_list[i],goal_position_list[j])] = dis
             elif(goal_position_list[i][0]+goal_position_list[i][1]>goal_position_list[j][0]+goal_position_list[j][1]):
@@ -240,14 +260,14 @@ def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #retu
     #find heuristic for node1 & node2:
     h1 = calculate_maze_distance(node.position, pos1, maze_map)
     h2 = calculate_maze_distance(node.position, pos2, maze_map)
-    # if sum_of_conditions == 0: 
-        # h1_result = (h1+goal_dist)/0.5
-        # h2_result = (h2+goal_dist)/0.5
-    # else:
-        # h1_result = (h1+goal_dist)/sum_of_conditions
-        # h2_result = (h2+goal_dist)/sum_of_conditions
-    h1_result = (h1+goal_dist)
-    h2_result = (h2+goal_dist)
+    if sum_of_conditions == 0: 
+        h1_result = (h1+goal_dist)/0.5
+        h2_result = (h2+goal_dist)/0.5
+    else:
+        h1_result = (h1+goal_dist)/sum_of_conditions
+        h2_result = (h2+goal_dist)/sum_of_conditions
+    # h1_result = (h1+goal_dist)
+    # h2_result = (h2+goal_dist)
     return min(h1_result, h2_result)
 
 
@@ -281,7 +301,6 @@ def search(maze_name):
         explored_states.add(tuple_id)
         search_expand(to_expand_node, map, frontier, explored_states, goal_position_list, precomputed_distance)
 
-    print counter
     goal_condition = dot_number * [1]
     for frontier_node in frontier.queue:
         if(frontier_node.dot_condition.values() == goal_condition):
@@ -289,42 +308,4 @@ def search(maze_name):
             utilities.print_route(maze_name, frontier_node.pathList)
             return
 
-
-
-search("tiny.txt")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+search("./small.txt")
