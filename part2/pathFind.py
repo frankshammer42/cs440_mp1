@@ -220,6 +220,7 @@ def findBiggestKeyPair(dictionary):
 
 def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #return a heuristic for
     #find two goals which preserve the largest distance:
+    #We need to reward the progress
 
     goal_number = len(goal_list)
     sum_of_conditions = sum(node.dot_condition.values())
@@ -239,7 +240,9 @@ def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #retu
     #find heuristic for node1 & node2:
     h1 = calculate_maze_distance(node.position, pos1, maze_map)
     h2 = calculate_maze_distance(node.position, pos2, maze_map)
-    return min(h1+goal_dist, h2+goal_dist)
+    h1_result = (h1+goal_dist)*sum_of_conditions
+    h2_result = (h2+goal_dist)*sum_of_conditions
+    return min(h1_result, h2_result)
 
 
 
