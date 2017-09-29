@@ -240,8 +240,14 @@ def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #retu
     #find heuristic for node1 & node2:
     h1 = calculate_maze_distance(node.position, pos1, maze_map)
     h2 = calculate_maze_distance(node.position, pos2, maze_map)
-    h1_result = (h1+goal_dist)*sum_of_conditions
-    h2_result = (h2+goal_dist)*sum_of_conditions
+    # if sum_of_conditions == 0: 
+        # h1_result = (h1+goal_dist)/0.5
+        # h2_result = (h2+goal_dist)/0.5
+    # else:
+        # h1_result = (h1+goal_dist)/sum_of_conditions
+        # h2_result = (h2+goal_dist)/sum_of_conditions
+    h1_result = (h1+goal_dist)
+    h2_result = (h2+goal_dist)
     return min(h1_result, h2_result)
 
 
@@ -285,7 +291,7 @@ def search(maze_name):
 
 
 
-search("small.txt")
+search("tiny.txt")
 
 
 
