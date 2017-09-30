@@ -144,9 +144,10 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
     for position in legal_positions:
         #Part 1 of repeated states detection
         #Since our heurstic is consistent we can still use repeated states detection
+
+
         if tuple(list(position)+explored_identifier_suffix) not in explored_states:
 
-            same_position_node_exists = 0
 
             toadd_pathList = copy.deepcopy(to_expand_node.pathList)
             toadd_pathList.append(position)
@@ -156,6 +157,8 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
             if position in goal_position_list:
                 toadd_dot_condition[position] = 1
             toadd_explored_identifier = list(position) + toadd_dot_condition.values()
+
+
             node_to_add.dot_condition = toadd_dot_condition
             node_to_add.explored_identifier = toadd_explored_identifier
 
@@ -164,20 +167,26 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
             node_to_add.cost = node_to_add.step_cost + node_to_add.heuristic_cost
 
 
+
             #Check if we have a node that has the same position and has a smaller cost
             #if true, then remove the old node and attach the new node
             counter = 0
+            same_position_node_exists = 0
             for frontier_node in frontier.queue:
                 if node_to_add.explored_identifier == frontier_node.explored_identifier:
                     same_position_node_exists = 1
                     if node_to_add.step_cost < frontier_node.step_cost:
-                        frontier.queue.remove(frontier_node)
+                        # frontier.queue.remove(frontier_node)
+                        # if(node_to_add.position == (4,3)):
+                            # print node_to_add.explored_identifier
+                        del frontier.queue[counter]
                         frontier.put(node_to_add)
                 counter += 1
 
             #we don't have the same position node
             if not same_position_node_exists:
                 frontier.put(node_to_add)
+
 
 
 def distance_between_goal_pair(map, goal_position_list):
@@ -292,14 +301,22 @@ def search(maze_name):
     frontier = Queue.PriorityQueue()
     frontier.put(start_node)
 
-    explored_states = set()
+    explored_states = set() 
     counter = 0
     while(not contain_goal(frontier.queue, dot_number)):
         counter += 1
         to_expand_node = frontier.get()
-        if(to_expand_node.position == (5,2)):
-            print to_expand_node.dot_condition
         tuple_id = tuple(to_expand_node.explored_identifier)
+
+        # if(to_expand_node.position == (4,3)):
+            # print to_expand_node.explored_identifier == [4, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0] 
+            # for frontier_node in frontier.queue:
+                # if frontier_node.explored_identifier == [4, 3, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]:
+                    # print "ok"
+            # print "-------------------------------------------"
+
+        # if(to_expand_node.position == (4,3)):
+            # print to_expand_node.explored_identifier
         explored_states.add(tuple_id)
         search_expand(to_expand_node, map, frontier, explored_states, goal_position_list, precomputed_distance)
 
