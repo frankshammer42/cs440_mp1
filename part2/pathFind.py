@@ -10,8 +10,8 @@ def contain_goal(frontier, dot_number):
     #Here the node in frontier belongs to nodept2
     goal_condition = dot_number * [1]
     for node in frontier:
-        print node.dot_condition
-        print "------------------------------------------------------"
+        # print node.dot_condition
+        # print "------------------------------------------------------"
         if node.dot_condition.values() == goal_condition:
             return True
     return False
@@ -168,9 +168,9 @@ def search_expand(to_expand_node, map, frontier, explored_states, goal_position_
             #if true, then remove the old node and attach the new node
             counter = 0
             for frontier_node in frontier.queue:
-                if position == frontier_node.position:
+                if node_to_add.explored_identifier == frontier_node.explored_identifier:
                     same_position_node_exists = 1
-                    if node_to_add.cost < frontier_node.cost:
+                    if node_to_add.step_cost < frontier_node.step_cost:
                         frontier.queue.remove(frontier_node)
                         frontier.put(node_to_add)
                 counter += 1
@@ -260,12 +260,12 @@ def computeHeuristic(node, maze_map, goal_list, goal_distance_dictionary): #retu
     #find heuristic for node1 & node2:
     h1 = calculate_maze_distance(node.position, pos1, maze_map)
     h2 = calculate_maze_distance(node.position, pos2, maze_map)
-    if sum_of_conditions == 0: 
-        h1_result = (h1+goal_dist)/0.5
-        h2_result = (h2+goal_dist)/0.5
-    else:
-        h1_result = (h1+goal_dist)/sum_of_conditions
-        h2_result = (h2+goal_dist)/sum_of_conditions
+    # if sum_of_conditions == 0: 
+        # h1_result = (h1+goal_dist)/0.5
+        # h2_result = (h2+goal_dist)/0.5
+    # else:
+    h1_result = (h1+goal_dist)
+    h2_result = (h2+goal_dist)
     # h1_result = (h1+goal_dist)
     # h2_result = (h2+goal_dist)
     return min(h1_result, h2_result)
@@ -297,6 +297,8 @@ def search(maze_name):
     while(not contain_goal(frontier.queue, dot_number)):
         counter += 1
         to_expand_node = frontier.get()
+        if(to_expand_node.position == (5,2)):
+            print to_expand_node.dot_condition
         tuple_id = tuple(to_expand_node.explored_identifier)
         explored_states.add(tuple_id)
         search_expand(to_expand_node, map, frontier, explored_states, goal_position_list, precomputed_distance)
